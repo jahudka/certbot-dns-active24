@@ -139,11 +139,15 @@ class _Active24Client(object):
     def _send_request(self, method, endpoint, payload=None):
         base_url = 'https://sandboxapi.active24.com' if self.test else 'https://api.active24.com'
 
+        token = self.token
+        if not isinstance(token, str):
+            token = ",".join(token)
+
         response = requests.request(
             method,
             base_url + endpoint,
             json=payload,
-            headers={'Authorization': 'Bearer ' + self.token}
+            headers={'Authorization': 'Bearer ' + token}
         )
 
         response.raise_for_status()
