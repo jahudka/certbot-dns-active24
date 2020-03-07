@@ -12,7 +12,9 @@ This plugin is based on the [Reg.ru DNS authenticator](https://github.com/free2e
 ## Installation
 1. First install the plugin:
    ```
-   sudo pip install certbot-dns-active24
+   git clone https://github.com/jahudka/certbot-dns-active24/
+   cd /certbot-dns-active24
+   python setup.py install 
    ```
 
 2. Configure it with your Active24 credentials:
@@ -28,7 +30,7 @@ This plugin is based on the [Reg.ru DNS authenticator](https://github.com/free2e
 ## Usage
 Request new certificates via a certbot invocation like this:
 
-    sudo certbot certonly -a certbot-active24:dns -d sub.domain.tld -d *.wildcard.tld
+    sudo certbot certonly -a certbot-dns-active24:dns -d sub.domain.tld -d *.wildcard.tld
 
 Renewals will automatically be performed using the same authenticator and credentials by certbot.
 
