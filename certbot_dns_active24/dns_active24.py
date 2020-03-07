@@ -50,7 +50,7 @@ class Authenticator(dns_common.DNSAuthenticator):
     def _cleanup(self, domain, validation_name, validation):
         self._get_active24_client().del_txt_record(validation_name, validation)
 
-    def _get_regru_client(self):
+    def _get_active24_client(self):
         return _Active24Client(self.credentials.conf('token'))
 
 
