@@ -5,6 +5,15 @@ import requests
 
 import zope.interface
 
+import dns
+import dns.message
+import dns.name
+import dns.query
+import dns.rdatatype
+import dns.resolver
+
+from time import sleep
+
 from certbot import errors
 from certbot import interfaces
 from certbot.plugins import dns_common
@@ -28,7 +37,7 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     @classmethod
     def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
-        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=120)
+        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=0)
         add('credentials', help='Path to Active24 credentials INI file', default='/etc/letsencrypt/active24.ini')
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
@@ -46,6 +55,7 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     def _perform(self, domain, validation_name, validation):
         self._get_active24_client().add_txt_record(validation_name, validation)
+        _wait_for_propagation(validation_name)
 
     def _cleanup(self, domain, validation_name, validation):
         self._get_active24_client().del_txt_record(validation_name, validation)
@@ -54,13 +64,29 @@ class Authenticator(dns_common.DNSAuthenticator):
         return _Active24Client(self.credentials.conf('token'))
 
 
+def _wait_for_propagation(validation_name):
+    nss = _get_nameservers(validation_name)
+    query = dns.message.make_query(dns.name.from_text(validation_name), dns.rdatatype.TXT)
+
+    while len(nss) > 0:
+        nss = [ns for ns in nss if len(dns.query.udp(query, ns).answer) == 0]
+        sleep(1)
+
+
+def _get_nameservers(domain):
+    resolver = dns.resolver.get_default_resolver()
+    answer = resolver.query(domain, 'NS', raise_on_no_answer=False)
+    nameservers = [rr.target.to_text() for rr in answer.response.authority[0]]
+    return [resolver.query(ns)[0].to_text() for ns in nameservers]
+
+
 class _Active24Client(object):
     """
     Encapsulates all communication with the Active24
     """
 
     def __init__(self, token):
-        self.token = token
+        self.token = token if isinstance(token, str) else ','.join(token)
         self.test = False
 
     def add_txt_record(self, record_name, record_content):

@@ -6,6 +6,7 @@ from certbot_dns_active24 import __version__
 install_requires = [
     'acme>=0.21.1',
     'certbot>=0.21.1',
+    'dnspython>=1.16.0',
     'requests>=2.9.1',
     'mock',
     'setuptools',
