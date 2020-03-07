@@ -76,8 +76,16 @@ def _wait_for_propagation(validation_name):
 def _get_nameservers(domain):
     resolver = dns.resolver.get_default_resolver()
     answer = resolver.query(domain, 'NS', raise_on_no_answer=False)
-    nameservers = [rr.target.to_text() for rr in answer.response.authority[0]]
-    return [resolver.query(ns)[0].to_text() for ns in nameservers]
+    rrset = answer if len(answer) > 0 else answer.response.authority[0]
+
+    if len(rrset) == 0:
+        return []
+
+    if rrset[0].rdtype == dns.rdatatype.SOA:
+        rrset = resolver.query(rrset.name, 'NS', raise_on_no_answer=False)
+
+    nameservers = [resolver.query(rr.target.to_text(), raise_on_no_answer=False) for rr in rrset]
+    return [ns[0].to_text() for ns in nameservers if len(ns) > 0]
 
 
 class _Active24Client(object):
