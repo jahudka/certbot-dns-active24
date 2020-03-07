@@ -12,9 +12,7 @@ This plugin is based on the [Reg.ru DNS authenticator](https://github.com/free2e
 ## Installation
 1. First install the plugin:
    ```
-   git clone https://github.com/jahudka/certbot-dns-active24/
-   cd /certbot-dns-active24
-   python setup.py install 
+   pip install certbot-dns-active24
    ```
 
 2. Configure it with your Active24 credentials:
@@ -36,10 +34,6 @@ Renewals will automatically be performed using the same authenticator and creden
 
 ## Command Line Options
 ```
- --certbot-active24:dns-propagation-seconds PROPAGATION_SECONDS
-                        The number of seconds to wait for DNS to propagate
-                        before asking the ACME server to verify the DNS record. 
-                        (default: 120)
  --certbot-active24:dns-credentials PATH_TO_CREDENTIALS
                         Path to Active24 account credentials INI file 
                         (default: /etc/letsencrypt/active24.ini)
@@ -52,3 +46,11 @@ See also `certbot --help certbot-active24:dns` for further information.
    ```
    sudo pip uninstall certbot-dns-active24
    ```
+
+## Development
+
+When releasing a new version, run `./release.sh <type>` from the project directory; `<type>` can be
+either `major`, `minor` or `patch`. This will update the `__version__` constant in `certbot_dns_active24/__init__.py`,
+commit the change and create an appropriate Git tag; next it will push these changes to the upstream repository,
+cleanup the `dist` directory, run `python setup.py sdist`, install `twine` if it isn't already installed and
+upload the latest release to PyPI. 

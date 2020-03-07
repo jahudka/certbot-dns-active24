@@ -28,6 +28,7 @@ setup(
     long_description_content_type='text/markdown',
     keywords='certbot letsencrypt dns-01 plugin',
     url='https://github.com/jahudka/certbot-dns-active24',
+    download_url='https://github.com/jahudka/certbot-dns-active24/archive/v' + __version__ + '.tar.gz',
     author="Dan Kadera",
     author_email='me@subsonic.cz',
     license='MIT',
