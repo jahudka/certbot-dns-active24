@@ -5,6 +5,8 @@ import requests
 
 import zope.interface
 
+import signal
+
 import dns
 import dns.message
 import dns.name
@@ -68,9 +70,24 @@ def _wait_for_propagation(validation_name):
     nss = _get_nameservers(validation_name)
     query = dns.message.make_query(dns.name.from_text(validation_name), dns.rdatatype.TXT)
 
+    logger.debug('Waiting for propagation to authoritative servers (%)', ', '.join(nss))
+    i = 0
+
+    def break_loop():
+        logger.debug('Interrupted by user signal')
+        nss.clear()
+
+    orig = signal.signal(signal.SIGUSR1, break_loop)
+
     while len(nss) > 0:
         nss = [ns for ns in nss if len(dns.query.udp(query, ns).answer) == 0]
         sleep(1)
+        i += 1
+
+        if (i % 30) == 0:
+            logger.debug('Remaining nameservers: %', ', '.join(nss))
+
+    signal.signal(signal.SIGUSR1, orig)
 
 
 def _get_nameservers(domain):
