@@ -116,6 +116,10 @@ class _Active24Client(object):
             })
         except requests.exceptions.RequestException as e:
             logger.error('Encountered error adding TXT record: %s', e)
+
+            if e.response is not None:
+                logger.error(e.response.text)
+
             raise errors.PluginError('Error communicating with the Active24 API: {0}'.format(e))
 
         if response.status_code != 204:
@@ -155,10 +159,10 @@ class _Active24Client(object):
         records = response.json()
 
         for record in records:
-            if record['name'] == record_name:
+            if record['type'] == 'TXT' and record['name'] == record_name:
                 return record['hashId']
 
-        raise RuntimeError('Cannot find DNS record "{0}" for domain "{1}"'.format(record_name, domain_name))
+        raise RuntimeError('Cannot find TXT record "{0}" for domain "{1}"'.format(record_name, domain_name))
 
     def _parse_domain(self, domain):
         """
