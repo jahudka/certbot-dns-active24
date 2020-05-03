@@ -84,7 +84,7 @@ def _wait_for_propagation(challenges):
     orig = signal.signal(signal.SIGUSR1, break_loop)
 
     while len(queue) > 0:
-        queue = [(ns, query, content) for (ns, query, content) in queue if not _check_nameserver(ns, query, content)]
+        queue = [(ns, content, query) for (ns, content, query) in queue if not _check_nameserver(ns, query, content)]
         sleep(1)
         i += 1
 
