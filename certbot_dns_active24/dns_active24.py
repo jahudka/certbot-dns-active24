@@ -56,8 +56,9 @@ class Authenticator(dns_common.DNSAuthenticator):
         )
 
     def perform(self, achalls):
-        super(Authenticator, self).perform(achalls)
+        responses = super(Authenticator, self).perform(achalls)
         _wait_for_propagation(achalls)
+        return responses
 
     def _perform(self, domain, validation_name, validation):
         self._get_active24_client().add_txt_record(validation_name, validation)
