@@ -1,2 +1,2 @@
 """Active24 DNS authenticator plugin for Certbot"""
-__version__ = '1.1.6'
+__version__ = '1.1.7'
