@@ -55,9 +55,12 @@ class Authenticator(dns_common.DNSAuthenticator):
             }
         )
 
+    def perform(self, achalls):
+        super(Authenticator, self).perform(achalls)
+        _wait_for_propagation(achalls)
+
     def _perform(self, domain, validation_name, validation):
         self._get_active24_client().add_txt_record(validation_name, validation)
-        _wait_for_propagation(validation_name, validation)
 
     def _cleanup(self, domain, validation_name, validation):
         self._get_active24_client().del_txt_record(validation_name, validation)
@@ -66,26 +69,27 @@ class Authenticator(dns_common.DNSAuthenticator):
         return _Active24Client(self.credentials.conf('token'))
 
 
-def _wait_for_propagation(validation_name, content):
-    nss = _get_nameservers(validation_name)
-    query = dns.message.make_query(dns.name.from_text(validation_name), dns.rdatatype.TXT)
+def _wait_for_propagation(challenges):
+    queue = [(ch.validation_domain_name(ch.domain), ch.validation(ch.account_key)) for ch in challenges]
+    queue = [(o[0], o[1], dns.message.make_query(dns.name.from_text(o[0]), dns.rdatatype.TXT)) for o in queue]
+    queue = [(ns, o[1], o[2]) for o in queue for ns in _get_nameservers(o[0])]
 
-    logger.debug('Waiting for propagation to authoritative servers (%s)' % ', '.join(nss))
+    logger.debug('Waiting for propagation to authoritative servers')
     i = 0
 
     def break_loop():
         logger.debug('Interrupted by user signal')
-        nss.clear()
+        queue.clear()
 
     orig = signal.signal(signal.SIGUSR1, break_loop)
 
-    while len(nss) > 0:
-        nss = [ns for ns in nss if not _check_nameserver(ns, query, content)]
+    while len(queue) > 0:
+        queue = [(ns, query, content) for (ns, query, content) in queue if not _check_nameserver(ns, query, content)]
         sleep(1)
         i += 1
 
         if (i % 30) == 0:
-            logger.debug('Remaining nameservers: %s' % ', '.join(nss))
+            logger.debug('Remaining records to check: %d' % len(queue))
 
     signal.signal(signal.SIGUSR1, orig)
 
