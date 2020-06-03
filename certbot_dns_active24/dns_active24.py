@@ -110,7 +110,8 @@ def _get_nameservers(domain):
         answer = resolver.query(domain, 'NS', raise_on_no_answer=False)
         rrset = answer if len(answer) > 0 else answer.response.authority[0]
     except dns.resolver.NXDOMAIN as e:
-        rrset = e.response(domain).authority[0]
+        _, answer = e.responses().popitem()
+        rrset = answer.authority[0]
 
     if len(rrset) == 0:
         return []
