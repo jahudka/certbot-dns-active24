@@ -78,7 +78,7 @@ def _wait_for_propagation(challenges):
     logger.debug('Waiting for propagation to authoritative servers')
     i = 0
 
-    def break_loop():
+    def break_loop(*_):
         logger.debug('Interrupted by user signal')
         queue.clear()
 
