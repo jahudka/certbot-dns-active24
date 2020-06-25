@@ -106,21 +106,22 @@ def _check_nameserver(ns, query, content):
 
 def _get_nameservers(domain):
     resolver = dns.resolver.get_default_resolver()
-    try:
-        answer = resolver.query(domain, 'NS', raise_on_no_answer=False)
-        rrset = answer if len(answer) > 0 else answer.response.authority[0]
-    except dns.resolver.NXDOMAIN as e:
-        _, answer = e.responses().popitem()
-        rrset = answer.authority[0]
 
-    if len(rrset) == 0:
-        return []
+    while True:
+        try:
+            rrset = resolver.query(domain, 'NS')
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
+            try:
+                domain = domain[domain.index('.') + 1:]
+                continue
+            except ValueError:
+                return []
 
-    if rrset[0].rdtype == dns.rdatatype.SOA:
-        rrset = resolver.query(rrset.name, 'NS', raise_on_no_answer=False)
+        if len(rrset) == 0:
+            return []
 
-    nameservers = [resolver.query(rr.target.to_text(), raise_on_no_answer=False) for rr in rrset]
-    return [ns[0].to_text() for ns in nameservers if len(ns) > 0]
+        nameservers = [resolver.query(rr.target.to_text(), raise_on_no_answer=False) for rr in rrset]
+        return [ns[0].to_text() for ns in nameservers if len(ns) > 0]
 
 
 class _Active24Client(object):
