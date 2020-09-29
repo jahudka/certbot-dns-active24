@@ -100,7 +100,7 @@ def _check_nameserver(ns, query, content):
 
     try:
         strings = result.answer[0].items[0].strings
-    except KeyError:
+    except (KeyError, IndexError):
         return False
 
     return ''.join([s.decode('utf-8') for s in strings]) == content
