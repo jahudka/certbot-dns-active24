@@ -59,7 +59,7 @@ setup(
     include_package_data=True,
     entry_points={
         'certbot.plugins': [
-            'dns = certbot_dns_active24.dns_active24:Authenticator',
+            'dns-active24 = certbot_dns_active24.dns_active24:Authenticator',
         ],
     },
     test_suite='certbot_dns_active24',

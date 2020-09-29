@@ -98,10 +98,12 @@ def _wait_for_propagation(challenges):
 def _check_nameserver(ns, query, content):
     result = dns.query.udp(query, ns)
 
-    if len(result.answer) < 1 or len(result.answer[0].items) < 1 or len(result.answer[0].items[0].strings) < 1:
+    try:
+        strings = result.answer[0].items[0].strings
+    except KeyError:
         return False
 
-    return ''.join([s.decode('utf-8') for s in result.answer[0].items[0].strings]) == content
+    return ''.join([s.decode('utf-8') for s in strings]) == content
 
 
 def _get_nameservers(domain):
