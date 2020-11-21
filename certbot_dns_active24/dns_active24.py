@@ -57,7 +57,10 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     def perform(self, achalls):
         responses = super(Authenticator, self).perform(achalls)
-        _wait_for_propagation(achalls)
+
+        if self.conf('propagation-seconds') <= 0:
+            _wait_for_propagation(achalls)
+
         return responses
 
     def _perform(self, domain, validation_name, validation):
