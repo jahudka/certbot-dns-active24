@@ -99,11 +99,11 @@ def _check_nameserver(ns, query, content):
     result = dns.query.udp(query, ns)
 
     try:
-        strings = result.answer[0].items[0].strings
+        strings = [s.decode('utf-8') for r in result.answer for a in r for s in a.strings]
     except (KeyError, IndexError):
         return False
 
-    return ''.join([s.decode('utf-8') for s in strings]) == content
+    return ''.join(strings) == content
 
 
 def _get_nameservers(domain):
