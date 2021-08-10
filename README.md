@@ -9,7 +9,10 @@ This plugin is based on the [Reg.ru DNS authenticator](https://github.com/free2e
 ## Requirements
 * certbot (>=0.21.1)
 
-_Note_: it is highly recommended that you install Certbot from PyPI (`pip install certbot`), rather than APT - the version of Certbot distributed through official package manager repositories is usually pretty old compared to PyPI (for example at the time of writing this, Debian 10 Buster provides Certbot version 0.31.0, whereas the version availiable through PyPI is 1.12.0).
+_Note_: it is highly recommended that you install Certbot from PyPI (`pip install certbot`), rather than APT -
+the version of Certbot distributed through official package manager repositories is usually pretty old compared
+to PyPI (for example at the time of writing this, Debian 10 Buster provides Certbot version 0.31.0, whereas
+the version availiable through PyPI is 1.12.0).
 
 ## Installation
 1. First install the plugin:
@@ -39,7 +42,11 @@ Request new certificates via a certbot invocation like this:
 Renewals will automatically be performed using the same authenticator and credentials by certbot.
 
 ## Note on parameter naming
-For reasons beyond my comprehension some Certbot installations don't recognise the plugin when you specify it using the abovementioned `-a dns-active24`. If Certbot complains that it can't find the plugin under that name, you need to prefix it with the full plugin name. And even that isn't as straightforward as one could hope, because you need to prefix both the plugin name on the command line and the plugin options in the config file, but each time with a different variation of the prefix:
+For reasons beyond my comprehension some Certbot installations don't recognise the plugin when you specify it using
+the abovementioned `-a dns-active24`. If Certbot complains that it can't find the plugin under that name, you need
+to prefix it with the full plugin name. And even that isn't as straightforward as one could hope, because you need
+to prefix both the plugin name on the command line and the plugin options in the config file, but each time with
+a different variation of the prefix:
 
 * In the config file you need to use `underscore_delimited_plugin_name`, so e.g. `certbot_dns_active24:dns_active24_token="your-token"`
 * On the command line you need to use `dash-delimited-plugin-name`, so e.g. `-a certbot-dns-active24:dns-active24`
