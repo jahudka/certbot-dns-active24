@@ -102,11 +102,17 @@ def _check_nameserver(ns, query, content):
     result = dns.query.udp(query, ns)
 
     try:
-        strings = [s.decode('utf-8') for r in result.answer for a in r for s in a.strings]
+        answers = [a for r in result.answer for a in r]
+
+        for a in answers:
+            value = ''.join([s.decode('utf-8') for s in a.strings])
+
+            if value == content:
+                return True
     except (KeyError, IndexError):
         return False
 
-    return ''.join(strings) == content
+    return False
 
 
 def _get_nameservers(domain):
@@ -148,42 +154,20 @@ class _Active24Client(object):
 
         domain, record = self._parse_domain(record_name)
         logger.debug('Attempting to add record: %s' % record)
-        dns_record = self._find_record(domain, record)
 
-        if dns_record is not None:
-            if dns_record['text'] == record_content:
-                logger.debug('Record already set with correct content')
-                return
-            else:
-                try:
-                    logger.debug('Record exists, but content doesn\'t match, updating')
-                    response = self._send_request('PUT', '/dns/%s/txt/v1' % domain, {
-                        'hashId': dns_record['hashId'],
-                        'name': record,
-                        'text': record_content,
-                        'ttl': 300,
-                    })
-                except requests.exceptions.RequestException as e:
-                    logger.error('Encountered error updating TXT record: %s', e)
+        try:
+            response = self._send_request('POST', '/dns/%s/txt/v1' % domain, {
+                'name': record,
+                'text': record_content,
+                'ttl': 300,
+            })
+        except requests.exceptions.RequestException as e:
+            logger.error('Encountered error adding TXT record: %s', e)
 
-                    if e.response is not None:
-                        logger.error(e.response.text)
+            if e.response is not None:
+                logger.error(e.response.text)
 
-                    raise errors.PluginError('Error communicating with the Active24 API: %s' % e)
-        else:
-            try:
-                response = self._send_request('POST', '/dns/%s/txt/v1' % domain, {
-                    'name': record,
-                    'text': record_content,
-                    'ttl': 300,
-                })
-            except requests.exceptions.RequestException as e:
-                logger.error('Encountered error adding TXT record: %s', e)
-
-                if e.response is not None:
-                    logger.error(e.response.text)
-
-                raise errors.PluginError('Error communicating with the Active24 API: %s' % e)
+            raise errors.PluginError('Error communicating with the Active24 API: %s' % e)
 
         if response.status_code != 204:
             logger.error('Encountered error adding TXT record: %s' % response)
@@ -203,7 +187,7 @@ class _Active24Client(object):
 
         domain, record = self._parse_domain(record_name)
         logger.debug('Attempting to delete record: %s' % record)
-        dns_record = self._find_record(domain, record)
+        dns_record = self._find_record(domain, record, record_content)
 
         if dns_record is not None:
             try:
@@ -221,12 +205,12 @@ class _Active24Client(object):
 
         logger.debug('Successfully deleted TXT record.')
 
-    def _find_record(self, domain_name, record_name):
+    def _find_record(self, domain_name, record_name, record_content):
         response = self._send_request('GET', '/dns/%s/records/v1' % domain_name)
         records = response.json()
 
         for record in records:
-            if record['type'] == 'TXT' and record['name'] == record_name:
+            if record['type'] == 'TXT' and record['name'] == record_name and record['text'] == record_content:
                 return record
 
         return None
