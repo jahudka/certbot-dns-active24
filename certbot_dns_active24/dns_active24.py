@@ -102,7 +102,8 @@ def _check_nameserver(ns, query, content):
     result = dns.query.udp(query, ns)
 
     try:
-        answers = [a for r in result.answer for a in r]
+        # Check only TXT records, because CNAME can be in results if wildcard CNAME record exists.
+        answers = [a for r in result.answer for a in r if a.rdtype == dns.rdatatype.TXT]
 
         for a in answers:
             value = ''.join([s.decode('utf-8') for s in a.strings])
