@@ -90,13 +90,13 @@ def _wait_for_propagation(challenges):
     while len(queue) > 0:
         queue = [(ns, content, query) for (ns, content, query) in queue if not _check_nameserver(ns, query, content)]
         sleep(1)
-        i += 1
 
         if (i % 30) == 0:
             logger.debug('Remaining records to check: %d' % len(queue))
 
-    signal.signal(signal.SIGUSR1, orig)
+        i += 1
 
+    signal.signal(signal.SIGUSR1, orig)
 
 def _check_nameserver(ns, query, content):
     result = dns.query.udp(query, ns)
