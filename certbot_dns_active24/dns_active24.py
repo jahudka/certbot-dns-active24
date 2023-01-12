@@ -154,7 +154,7 @@ class _Active24Client(object):
         """
 
         domain, record = self._parse_domain(record_name)
-        logger.debug('Attempting to add record: %s' % record)
+        logger.debug('Attempting to add record %s with content %s' % (record, record_content))
 
         try:
             response = self._send_request('POST', '/dns/%s/txt/v1' % domain, {
