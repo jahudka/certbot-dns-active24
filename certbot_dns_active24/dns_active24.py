@@ -75,7 +75,7 @@ class Authenticator(dns_common.DNSAuthenticator):
 
 def _wait_for_propagation(challenges):
     queue = [(ch.validation_domain_name(ch.domain), ch.validation(ch.account_key)) for ch in challenges]
-    queue = [(o[0], o[1], dns.message.make_query(dns.name.from_text(o[0]), dns.rdatatype.TXT)) for o in queue]
+    queue = [(o[0], o[1], dns.name.from_text(o[0])) for o in queue]
     queue = [(ns, o[1], o[2]) for o in queue for ns in _get_nameservers(o[0])]
 
     logger.debug('Waiting for propagation to authoritative servers')
@@ -99,22 +99,19 @@ def _wait_for_propagation(challenges):
     signal.signal(signal.SIGUSR1, orig)
 
 def _check_nameserver(ns, query, content):
-    result = dns.query.udp(query, ns)
-
     try:
-        # Check only TXT records, because CNAME can be in results if wildcard CNAME record exists.
-        answers = [a for r in result.answer for a in r if a.rdtype == dns.rdatatype.TXT]
-
-        for a in answers:
-            value = ''.join([s.decode('utf-8') for s in a.strings])
-
+        resolver = dns.resolver.Resolver()
+        resolver.nameservers = [ ns ]
+        rrset = resolver.resolve(query, "TXT").rrset
+        for data in rrset:
+            value = data.to_text().strip('"')
             if value == content:
+                logger.debug("found TXT %s in %s" % (value, ns))
                 return True
-    except (KeyError, IndexError):
-        return False
+    except dns.resolver.NXDOMAIN:
+        pass
 
     return False
-
 
 def _get_nameservers(domain):
     resolver = dns.resolver.get_default_resolver()
