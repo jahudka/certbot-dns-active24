@@ -9,10 +9,11 @@ This plugin is based on the [Reg.ru DNS authenticator](https://github.com/free2e
 ## Requirements
 * certbot (>=0.21.1)
 
-_Note_: it is highly recommended that you install Certbot from PyPI (`pip install certbot`), rather than APT -
-the version of Certbot distributed through official package manager repositories is usually pretty old compared
-to PyPI (for example at the time of writing this, Debian 10 Buster provides Certbot version 0.31.0, whereas
-the version availiable through PyPI is 1.12.0).
+_Note_: it is highly recommended that you install Certbot from PyPI (`pip install certbot`), rather than your distribution's
+package manager or Snap or similar - not only is the PyPI version usually the newest available, but there have been reports
+of issues with the plugin when it's installed via PyPI and Certbot is not. If anyone has ideas on how this package could
+be improved to fix these compatibility issues, please post an issue, or better yet, a pull request - any input or help
+is much appreciated!
 
 ## Installation
 1. First install the plugin:
