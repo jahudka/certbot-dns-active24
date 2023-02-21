@@ -108,7 +108,7 @@ def _check_nameserver(ns, query, content):
             if value == content:
                 logger.debug("found TXT %s in %s" % (value, ns))
                 return True
-    except dns.resolver.NXDOMAIN:
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
         pass
 
     return False
