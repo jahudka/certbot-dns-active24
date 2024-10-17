@@ -1,6 +1,3 @@
 /.venv/
-/build/
 /dist/
-*.pyc
-/*.egg-info
-/*.egg
+/src/*.egg-info

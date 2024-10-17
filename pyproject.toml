@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "certbot-dns-active24"
+authors = [
+    {name = "Dan Kadera", email = "me@subsonic.cz"},
+]
+description = "Active24 DNS Authenticator plugin for Certbot"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["certbot", "letsencrypt", "dns-01", "plugin", "authenticator"]
+license = {text = "MIT"}
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Plugins",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Security",
+    "Topic :: System :: Installation/Setup",
+    "Topic :: System :: Networking",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "acme>=0.29.0",
+    "certbot>=0.34.0",
+    "dnspython",
+    "mock",
+    "requests",
+    "setuptools",
+    "requests-mock",
+    "zope.interface",
+]
+
+[project.urls]
+Homepage = "https://github.com/jahudka/certbot-dns-active24"
+Repository = "https://github.com/jahudka/certbot-dns-active24.git"
+"Bug Tracker" = "https://github.com/jahudka/certbot-dns-active24/issues"
+
+[project.entry-points."certbot.plugins"]
+dns-active24 = "certbot_dns_active24.dns_active24:Authenticator"
+
+[tool.setuptools_scm]
