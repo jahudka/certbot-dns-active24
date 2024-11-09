@@ -7,7 +7,7 @@ if [[ "$( git status -uno --porcelain=v1 )" != "" ]]; then
     exit 1
 fi
 
-if ! git describe --exact-match --tags 2&>/dev/null; then
+if ! git describe --exact-match --tags 2>/dev/null; then
     echo "Please tag the current package version"
     exit 1
 fi
