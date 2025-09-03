@@ -1,5 +1,6 @@
 """DNS Authenticator for Active24 DNS."""
 import logging
+import json
 
 import requests
 
@@ -157,7 +158,7 @@ class _Active24Client(object):
         domain, record = self._parse_domain(record_name)
         logger.debug('Attempting to delete record: %s' % record)
         service = self._find_service(domain)
-        dns_record = self._find_record(service, record_name, record_content)
+        dns_record = self._find_record(service, record, record_content)
 
         if dns_record is not None:
             try:
@@ -187,16 +188,12 @@ class _Active24Client(object):
 
     def _find_record(self, service, record_name, record_content):
         response = self._send_request('GET', '/v2/service/%d/dns/record' % service, query={
-            'name': record_name,
-            'type': ['TXT'],
+            'filters[type][0]': 'TXT',
+            'filters[name]': record_name,
+            'filters[content]': record_content,
         })
         payload = response.json()
-
-        for record in payload['data']:
-            if record['type'] == 'TXT' and record['name'] == record_name and record['content'] == record_content:
-                return record
-
-        return None
+        return payload['data'][0] if len(payload['data']) > 0 else None
 
     def _parse_domain(self, domain):
         """
