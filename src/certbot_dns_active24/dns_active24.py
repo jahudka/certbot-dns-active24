@@ -7,7 +7,11 @@ import requests
 import zope.interface
 from typing import List
 
+import dns.message
+import dns.nameserver
 import dns.query
+import dns.rcode
+import dns.rdatatype
 import dns.resolver
 from dns.exception import DNSException
 
@@ -42,8 +46,8 @@ class Authenticator(dns_common.DNSAuthenticator):
         self.credentials = None
 
     @classmethod
-    def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
-        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=300)
+    def add_parser_arguments(cls, add, default_propagation_seconds = 300):  # pylint: disable=arguments-differ
+        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds)
         add('credentials', help='Path to Active24 credentials INI file', default='/etc/letsencrypt/active24.ini')
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
@@ -253,10 +257,10 @@ def _has_propagated(record: str, challenge: str) -> bool:
         if rcode != dns.rcode.NOERROR:
             return False
 
-        for rrset in response.answer:
-            for rr in rrset:
-                if rr.rdtype == dns.rdatatype.TXT and rr.to_text().strip('"') != challenge:
-                    return False
+        records = [rr.to_text().strip('"') for rs in response.answer for rr in rs if rr.rdtype == dns.rdatatype.TXT]
+
+        if len(records) != 1 or records[0] != challenge:
+            return False
 
     return True
 
